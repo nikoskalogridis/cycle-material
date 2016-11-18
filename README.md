@@ -1,16 +1,14 @@
-Snabbdom Material
+Cycle Material
 =================
 
-Stateless UI components for Cycle that follow material design.
+UI components for Cycle that follow material design.
 
 Introduction
 ------------
 
-snabbdom-material is a library of [snabbdom](https://github.com/paldepind/snabbdom) user interface components based on [material design](https://www.google.com/design/spec/).
+cycle-material is a library of [snabbdom](https://github.com/paldepind/snabbdom) user interface components based on [material design](https://www.google.com/design/spec/).
 
-snabbdom-material components are completely stateless making them an ideal companion to libraries such as [Cerebral](http://www.cerebraljs.com/).
-
-The development of snabbdom-material has been sponsored by [Elastic Time](http://www.elastictime.com/).
+cycle-material components are completely stateless making them an ideal companion to libraries such as [Cerebral](http://www.cerebraljs.com/).
 
 Documentation, Demos & Code Examples
 ------------------------------------
