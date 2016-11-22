@@ -12,7 +12,9 @@ function createComponentFactory(sources) {
     return function createComponent(component, props) {
         return component({
             DOM: sources.DOM,
-            props: xs.of(props)
+            // Temporary fix waiting for https://github.com/cyclejs/cyclejs/issues/476
+            // to be resolved
+            props: xs.fromPromise(Promise.resolve(props))
         });
     };
 }

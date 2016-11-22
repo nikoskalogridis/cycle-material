@@ -6,11 +6,66 @@ import {div} from "@cycle/dom";
 import {appbar, icon, calendar, col, row, paper} from "../../../../lib";
 import xs from "xstream";
 
+function customerFormFields(components) {
+    const {
+        firstNameInput,
+        lastNameInput,
+        emailInput,
+        saveButton,
+        cancelButton,
+        mobileInput,
+        phoneInput,
+        genderSelect
+    } = components;
+
+    return div(
+        [
+            row(
+                {},
+                [
+                    col({type: "sm-6"}, [genderSelect])
+                ]
+            ),
+            row(
+                {},
+                [
+                    col({type: "sm-6"}, [firstNameInput]),
+                    col({type: "sm-6"}, [lastNameInput])
+                ]
+            ),
+            row(
+                {},
+                [
+                    col({type: "sm-12"}, [emailInput])
+                ]
+            ),
+            row(
+                {},
+                [
+                    col({type: "sm-6"}, [mobileInput]),
+                    col({type: "sm-6"}, [phoneInput])
+                ]
+            ),
+            row(
+                {},
+                [
+                    col(
+                        {type: "sm-12"},
+                        [
+                            saveButton,
+                            cancelButton
+                        ]
+                    )
+                ]
+            )
+        ]
+    );
+}
+
 function view(state$, inputFieldDOMs) {
     const inputFieldArray = Object.keys(inputFieldDOMs).map(function (key) {
         return inputFieldDOMs[key];
     });
-
 
     return xs
         .combine(state$, ...inputFieldArray)
@@ -20,21 +75,11 @@ function view(state$, inputFieldDOMs) {
                 c[key] = inputs[index];
                 return c;
             }, {});
-            const {
-                firstNameInput,
-                lastNameInput,
-                emailInput,
-                saveButton,
-                cancelButton,
-                mobileInput,
-                phoneInput,
-                genderSelect
-            } = inputFields;
 
             return div(
                 [
                     appbar(
-                        {},
+                        {fixed: true},
                         [
                             appbar.button({style: {float: "left"}}, [icon({name: "menu"})]),
                             appbar.title({}, "Customers"),
@@ -43,59 +88,26 @@ function view(state$, inputFieldDOMs) {
                                     style: {float: "right"}
                                 },
                                 [
-                                    appbar.button({href: "https://github.com/garth/snabbdom-material"}, "test")
+                                    appbar.button({href: "https://github.com/nikoskalogridis/cycle-material"}, [icon({name: "github"})])
                                 ]
                             )
                         ]
                     ),
                     div(
-                        {style: {"margin-top": "12px"}},
+                        ".main",
                         [
-                            //row({}, [col({type: "md-3 md-offset-4"}, [paper({}, [calendar({})])])]),
-                            row(
-                                {},
-                                [
-                                    col({type: "md-5 md-offset-1"}, [genderSelect])
-                                ]
-                            ),
-                            // select(
-                            //     {
-                            //         label: "gender",
-                            //         options: [
-                            //             {value: 0, label: "Male"},
-                            //             {value: 1, label: "Female"}
-                            //         ],
-                            //         selected: {value: 0, label: "Male"}
-                            //     }
-                            // ),
-                            row(
-                                {},
-                                [
-                                    col({type: "md-5 md-offset-1"}, [firstNameInput]),
-                                    col({type: "md-5"}, [lastNameInput])
-                                ]
-                            ),
-                            row(
-                                {},
-                                [
-                                    col({type: "md-10 md-offset-1"}, [emailInput])
-                                ]
-                            ),
-                            row(
-                                {},
-                                [
-                                    col({type: "md-5 md-offset-1"}, [mobileInput]),
-                                    col({type: "md-5"}, [phoneInput])
-                                ]
-                            ),
                             row(
                                 {},
                                 [
                                     col(
-                                        {type: "md-10 md-offset-1"},
+                                        {type: "sm-10 sm-offset-1"},
                                         [
-                                            saveButton,
-                                            cancelButton
+                                            paper(
+                                                {},
+                                                [
+                                                    customerFormFields(inputFields)
+                                                ]
+                                            )
                                         ]
                                     )
                                 ]

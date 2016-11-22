@@ -5,43 +5,44 @@
 import xs from "xstream";
 import {actionFilter} from "../../helpers/actionFilter";
 
-function model(action$, props$) {
-    const defaultProps = {
-        flat: false,
-        primary: false,
-        secondary: false,
-        type: "button",
-        enabled: true,
-        text: "button"
-    };
+const defaultState = {
+    flat: false,
+    primary: false,
+    secondary: false,
+    type: "button",
+    enabled: true,
+    text: "Button"
+};
 
-    const clickReducer$ = action$
+function model(action$) {
+    const defaultReducer$ = xs
+        .of(function defaultReducer(state) {
+            return state === undefined
+                ? defaultState
+                : state;
+        });
+
+    const propsReducer$ = action$
+        .filter(actionFilter("PROPS"))
+        .map((action) => function propsReducer(state) {
+            return Object.assign({}, state, action.props);
+        });
+
+    const reducer$ = xs
+        .merge(
+            defaultReducer$,
+            propsReducer$
+        );
+
+    const clickAction$ = action$
         .filter(actionFilter("CLICK"))
-        .map((action) => function clickReducer(state) {
-            return Object.assign({}, state, {value: action.data});
+        .map(function () {
+            return {type: "CLICK"};
         });
-
-    const propsReducer$ = props$
-        .map((props) => function propsReducer(state) {
-            return Object.assign({}, state, props);
-        });
-
-    const reducers$ = xs.merge(
-        clickReducer$,
-        propsReducer$
-    );
-
-    const state$ = reducers$.fold(function (prevState, reducer) {
-        return reducer(prevState);
-    }, defaultProps);
-
-    const events$ = state$.map(function () {
-        return {type: "CLICK"};
-    });
 
     return {
-        state$,
-        events$
+        reducers: reducer$,
+        events: clickAction$
     };
 }
 

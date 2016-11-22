@@ -28,13 +28,25 @@ function model(action$, props$) {
     const clickReducer$ = action$
         .filter(actionFilter("CLICK"))
         .map(() => function clickReducer(state) {
-            return Object.assign({}, state);
+            return Object.assign({}, state, {isOpen: true});
         });
 
     const inputReducer$ = action$
         .filter(actionFilter("INPUT"))
         .map((action) => function inputReducer(state) {
             return Object.assign({}, state, {value: action.data});
+        });
+
+    const closeReducer$ = action$
+        .filter(actionFilter("CLOSE"))
+        .map(() => function closeReducer(state) {
+            return Object.assign({}, state, {isOpen: false});
+        });
+
+    const selectReducer$ = action$
+        .filter(actionFilter("SELECT"))
+        .map((ev) => function selectReducer(state) {
+            return Object.assign({}, state);
         });
 
     const propsReducer$ = props$
@@ -56,11 +68,13 @@ function model(action$, props$) {
 
     const reducers$ = xs.merge(
         clickReducer$,
+        closeReducer$,
         focusReducer$,
         blurReducer$,
         changeReducer$,
         inputReducer$,
-        propsReducer$
+        propsReducer$,
+        selectReducer$
     );
 
     const state$ = reducers$.fold(function (prevState, reducer) {

@@ -40,7 +40,27 @@ function intent(DOMSource) {
             };
         });
 
-    return xs.merge(clickAction$, focusAction$, blurAction$, changeAction$, inputAction$);
+    const closeAction$ = DOMSource
+        .select(".mask")
+        .events("click")
+        .map(function () {
+            return {
+                type: "CLOSE"
+            };
+        });
+
+    const selectAction$ = DOMSource
+        .select(".menu-item")
+        .events("click")
+        .map(function (ev) {
+            console.log(ev.target);
+            return {
+                type: "SELECT",
+                data: ev.target
+            };
+        });
+
+    return xs.merge(clickAction$, focusAction$, blurAction$, changeAction$, inputAction$, closeAction$, selectAction$);
 }
 
 export default intent;

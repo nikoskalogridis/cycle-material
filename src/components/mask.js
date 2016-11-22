@@ -16,7 +16,7 @@ export default function mask(options) {
 
     return isOpen
         ? h(
-            "div",
+            "div.mask",
             {
                 style: Object.assign(
                     {},

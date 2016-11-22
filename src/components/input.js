@@ -1,5 +1,5 @@
 /*jslint
-    es6
+    es6, browser
 */
 
 import h from "snabbdom/h";
