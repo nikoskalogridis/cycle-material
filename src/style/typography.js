@@ -45,9 +45,9 @@ export default function (variables) {
             lineHeight: "32px"
         },
         body: {
-            fontSize: "14px",
-            fontWeight: "400",
-            lineHeight: "25px"
+            //fontSize: "14px",
+            //fontWeight: "400",
+            //lineHeight: "25px"
         },
         caption: {
             fontSize: "12px",

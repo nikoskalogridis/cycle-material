@@ -15,6 +15,7 @@ function createComponentFactory(sources) {
             // Temporary fix waiting for https://github.com/cyclejs/cyclejs/issues/476
             // to be resolved
             props: xs.fromPromise(Promise.resolve(props))
+            //props: xs.of(props)
         });
     };
 }
@@ -36,8 +37,8 @@ export default function CustomerDetailsForm(sources) {
         emailInput: createComponent(mdInput, {label: "Email", type: "email"}),
         mobileInput: createComponent(mdInput, {label: "Mobile"}),
         phoneInput: createComponent(mdInput, {label: "Phone"}),
-        saveButton: createComponent(mdButton, {primary: true, text: "Save"}),
-        cancelButton: createComponent(mdButton, {text: "Cancel"}),
+        saveButton: createComponent(mdButton, {flat: true, text: "Save"}),
+        cancelButton: createComponent(mdButton, {text: "Cancel", flat: true, style: {"margin-left": "1em"}}),
         genderSelect: createComponent(
             mdSelect,
             {
@@ -48,7 +49,13 @@ export default function CustomerDetailsForm(sources) {
                 ],
                 selected: {value: 0, label: "Male"}
             }
-        )
+        ),
+        defaultFlatButton: createComponent(mdButton, {text: "default", flat: true}),
+        primaryFlatButton: createComponent(mdButton, {text: "primary", primary: true, flat: true, style: {"margin-left": "1em"}}),
+        secondaryFlatButton: createComponent(mdButton, {text: "secondary", secondary: true, flat: true, style: {"margin-left": "1em"}}),
+        defaultRaisedButton: createComponent(mdButton, {text: "default", flat: false}),
+        primaryRaisedButton: createComponent(mdButton, {text: "primary", primary: true, flat: false, style: {"margin-left": "1em"}}),
+        secondaryRaisedButton: createComponent(mdButton, {text: "secondary", secondary: true, flat: false, style: {"margin-left": "1em"}})
     };
 
     const inputFieldsEvents = getFields(childComponents, "events");

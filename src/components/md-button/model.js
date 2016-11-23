@@ -3,6 +3,7 @@
 */
 
 import xs from "xstream";
+import concat from "xstream/extra/concat";
 import {actionFilter} from "../../helpers/actionFilter";
 
 const defaultState = {

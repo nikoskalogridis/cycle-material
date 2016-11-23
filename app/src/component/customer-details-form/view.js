@@ -15,7 +15,13 @@ function customerFormFields(components) {
         cancelButton,
         mobileInput,
         phoneInput,
-        genderSelect
+        genderSelect,
+        defaultFlatButton,
+        primaryFlatButton,
+        secondaryFlatButton,
+        defaultRaisedButton,
+        primaryRaisedButton,
+        secondaryRaisedButton
     } = components;
 
     return div(
@@ -54,6 +60,40 @@ function customerFormFields(components) {
                         [
                             saveButton,
                             cancelButton
+                        ]
+                    )
+                ]
+            ),
+            row(
+                {
+                    style: {
+                        "margin-top": "1em"
+                    }
+                },
+                [
+                    col(
+                        {type: "sm-12"},
+                        [
+                            defaultFlatButton,
+                            primaryFlatButton,
+                            secondaryFlatButton
+                        ]
+                    )
+                ]
+            ),
+            row(
+                {
+                    style: {
+                        "margin-top": "1em"
+                    }
+                },
+                [
+                    col(
+                        {type: "sm-12"},
+                        [
+                            defaultRaisedButton,
+                            primaryRaisedButton,
+                            secondaryRaisedButton
                         ]
                     )
                 ]
