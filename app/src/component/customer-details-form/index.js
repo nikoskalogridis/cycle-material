@@ -55,7 +55,13 @@ export default function CustomerDetailsForm(sources) {
         secondaryFlatButton: createComponent(mdButton, {text: "secondary", secondary: true, flat: true, style: {"margin-left": "1em"}}),
         defaultRaisedButton: createComponent(mdButton, {text: "default", flat: false}),
         primaryRaisedButton: createComponent(mdButton, {text: "primary", primary: true, flat: false, style: {"margin-left": "1em"}}),
-        secondaryRaisedButton: createComponent(mdButton, {text: "secondary", secondary: true, flat: false, style: {"margin-left": "1em"}})
+        secondaryRaisedButton: createComponent(mdButton, {text: "secondary", secondary: true, flat: false, style: {"margin-left": "1em"}}),
+        defaultFlatButtonDisabled: createComponent(mdButton, {enabled: false, text: "default", flat: true}),
+        primaryFlatButtonDisabled: createComponent(mdButton, {enabled: false, text: "primary", primary: true, flat: true, style: {"margin-left": "1em"}}),
+        secondaryFlatButtonDisabled: createComponent(mdButton, {enabled: false, text: "secondary", secondary: true, flat: true, style: {"margin-left": "1em"}}),
+        defaultRaisedButtonDisabled: createComponent(mdButton, {enabled: false, text: "default", flat: false}),
+        primaryRaisedButtonDisabled: createComponent(mdButton, {enabled: false, text: "primary", primary: true, flat: false, style: {"margin-left": "1em"}}),
+        secondaryRaisedButtonDisabled: createComponent(mdButton, {enabled: false, text: "secondary", secondary: true, flat: false, style: {"margin-left": "1em"}})
     };
 
     const inputFieldsEvents = getFields(childComponents, "events");

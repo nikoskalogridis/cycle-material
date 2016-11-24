@@ -17,7 +17,8 @@ function button({flat, primary, secondary, style, classes, type, enabled, text})
                 button: true,
                 primary,
                 secondary,
-                raised: !flat
+                raised: !flat,
+                disabled: !enabled
             }),
             props: {
                 type,

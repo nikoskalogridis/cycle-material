@@ -65,6 +65,7 @@
   },
   "devDependencies": {
     "@cycle/dom": "^14.0.0",
+    "@cycle/history": "^4.0.2",
     "@cycle/xstream-adapter": "^3.0.4",
     "@cycle/xstream-run": "^3.1.0",
     "autoprefixer": "^6.3.6",
@@ -83,6 +84,7 @@
     "html-webpack-plugin": "^2.15.0",
     "jslint": "^0.10.3",
     "node-sass": "^3.4.2",
+    "node-wget": "^0.4.2",
     "normalize.css": "^4.0.0",
     "parallelshell": "^2.0.0",
     "postcss-loader": "^0.8.2",
@@ -96,7 +98,6 @@
     "webpack": "^1.12.13",
     "webpack-dev-middleware": "^1.6.1",
     "webpack-hot-middleware": "^2.10.0",
-    "webpack-sources": "^0.1.1",
-    "node-wget": "^0.4.2"
+    "webpack-sources": "^0.1.1"
   }
 }

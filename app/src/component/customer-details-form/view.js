@@ -21,7 +21,13 @@ function customerFormFields(components) {
         secondaryFlatButton,
         defaultRaisedButton,
         primaryRaisedButton,
-        secondaryRaisedButton
+        secondaryRaisedButton,
+        defaultFlatButtonDisabled,
+        primaryFlatButtonDisabled,
+        secondaryFlatButtonDisabled,
+        defaultRaisedButtonDisabled,
+        primaryRaisedButtonDisabled,
+        secondaryRaisedButtonDisabled
     } = components;
 
     return div(
@@ -91,9 +97,43 @@ function customerFormFields(components) {
                     col(
                         {type: "sm-12"},
                         [
+                            defaultFlatButtonDisabled,
+                            primaryFlatButtonDisabled,
+                            secondaryFlatButtonDisabled
+                        ]
+                    )
+                ]
+            ),
+            row(
+                {
+                    style: {
+                        "margin-top": "1em"
+                    }
+                },
+                [
+                    col(
+                        {type: "sm-12"},
+                        [
                             defaultRaisedButton,
                             primaryRaisedButton,
                             secondaryRaisedButton
+                        ]
+                    )
+                ]
+            ),
+            row(
+                {
+                    style: {
+                        "margin-top": "1em"
+                    }
+                },
+                [
+                    col(
+                        {type: "sm-12"},
+                        [
+                            defaultRaisedButtonDisabled,
+                            primaryRaisedButtonDisabled,
+                            secondaryRaisedButtonDisabled
                         ]
                     )
                 ]

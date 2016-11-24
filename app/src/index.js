@@ -9,15 +9,17 @@ import switchPath from "switch-path";
 import {run} from "@cycle/xstream-run";
 import {makeDOMDriver} from "@cycle/dom";
 import CustomersDetailsForm from "./component/customer-details-form";
+import ButtonsPage from "./component/buttons";
 // load the css
 import {} from "!style!css!../vendor/icomoon/style.css";
 
 function main(sources) {
     const match$ = sources.router.define({
-        "/": CustomersDetailsForm
+        "/": ButtonsPage,
+        "/buttons": CustomersDetailsForm
     });
 
-    const page$ = match$.map(function ({path, value}) {
+    const page$ = match$.debug().map(function ({path, value}) {
         return value(Object.assign({}, sources, {
             router: sources.router.path(path)
         }));
