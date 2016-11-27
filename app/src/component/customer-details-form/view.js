@@ -15,19 +15,7 @@ function customerFormFields(components) {
         cancelButton,
         mobileInput,
         phoneInput,
-        genderSelect,
-        defaultFlatButton,
-        primaryFlatButton,
-        secondaryFlatButton,
-        defaultRaisedButton,
-        primaryRaisedButton,
-        secondaryRaisedButton,
-        defaultFlatButtonDisabled,
-        primaryFlatButtonDisabled,
-        secondaryFlatButtonDisabled,
-        defaultRaisedButtonDisabled,
-        primaryRaisedButtonDisabled,
-        secondaryRaisedButtonDisabled
+        genderSelect
     } = components;
 
     return div(
@@ -66,74 +54,6 @@ function customerFormFields(components) {
                         [
                             saveButton,
                             cancelButton
-                        ]
-                    )
-                ]
-            ),
-            row(
-                {
-                    style: {
-                        "margin-top": "1em"
-                    }
-                },
-                [
-                    col(
-                        {type: "sm-12"},
-                        [
-                            defaultFlatButton,
-                            primaryFlatButton,
-                            secondaryFlatButton
-                        ]
-                    )
-                ]
-            ),
-            row(
-                {
-                    style: {
-                        "margin-top": "1em"
-                    }
-                },
-                [
-                    col(
-                        {type: "sm-12"},
-                        [
-                            defaultFlatButtonDisabled,
-                            primaryFlatButtonDisabled,
-                            secondaryFlatButtonDisabled
-                        ]
-                    )
-                ]
-            ),
-            row(
-                {
-                    style: {
-                        "margin-top": "1em"
-                    }
-                },
-                [
-                    col(
-                        {type: "sm-12"},
-                        [
-                            defaultRaisedButton,
-                            primaryRaisedButton,
-                            secondaryRaisedButton
-                        ]
-                    )
-                ]
-            ),
-            row(
-                {
-                    style: {
-                        "margin-top": "1em"
-                    }
-                },
-                [
-                    col(
-                        {type: "sm-12"},
-                        [
-                            defaultRaisedButtonDisabled,
-                            primaryRaisedButtonDisabled,
-                            secondaryRaisedButtonDisabled
                         ]
                     )
                 ]

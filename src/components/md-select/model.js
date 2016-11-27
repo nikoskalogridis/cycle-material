@@ -6,7 +6,32 @@ import xs from "xstream";
 import {actionFilter} from "../../helpers/actionFilter";
 import dropRepeats from "xstream/extra/dropRepeats";
 
-function model(action$, props$) {
+const defaultState = {
+    isError: false,
+    isOpen: false,
+    isSuccess: false,
+    label: "",
+    message: "",
+    options: [],
+    readOnly: false,
+    selected: false,
+    value: ""
+};
+
+function model(action$) {
+    const defaultReducer$ = xs
+        .of(function defaultReducer(state) {
+            return state === undefined
+                ? defaultState
+                : state;
+        });
+
+    const propsReducer$ = action$
+        .filter(actionFilter("PROPS"))
+        .map((action) => function propsReducer(state) {
+            return Object.assign({}, state, action.props);
+        });
+
     const changeReducer$ = action$
         .filter(actionFilter("CHANGE"))
         .map((action) => function changeReducer(state) {
@@ -49,24 +74,8 @@ function model(action$, props$) {
             return Object.assign({}, state);
         });
 
-    const propsReducer$ = props$
-        .map((props) => function propsReducer(state) {
-            return Object.assign({}, state, props);
-        });
-
-    const defaultProps = {
-        isError: false,
-        isOpen: false,
-        isSuccess: false,
-        label: "",
-        message: "",
-        options: [],
-        readOnly: false,
-        selected: false,
-        value: ""
-    };
-
-    const reducers$ = xs.merge(
+    const reducer$ = xs.merge(
+        defaultReducer$,
         clickReducer$,
         closeReducer$,
         focusReducer$,
@@ -77,24 +86,21 @@ function model(action$, props$) {
         selectReducer$
     );
 
-    const state$ = reducers$.fold(function (prevState, reducer) {
-        return reducer(prevState);
-    }, defaultProps);
-
-    const events$ = state$
-        .compose(dropRepeats(function (prev, current) {
-            return prev.value === current.value;
-        }))
-        .map(function (state) {
+    const events$ = action$
+        .filter(actionFilter("CHANGE"))
+        .map(function (action) {
             return {
                 type: "CHANGE",
-                value: state.value
+                value: action.data
             };
-        });
+        })
+        .compose(dropRepeats(function (prev, current) {
+            return prev.value === current.value;
+        }));
 
     return {
-        state$,
-        events$
+        reducers: reducer$,
+        events: events$
     };
 }
 

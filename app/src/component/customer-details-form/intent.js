@@ -4,43 +4,25 @@
 
 import xs from "xstream";
 
-function intent(DOMSource) {
-    const addActions$ = DOMSource
-        .select(".add-customer-action")
-        .events("click")
-        .mapTo(
-            {
-                type: "ADD",
-                data: {
-                    id: "34534223624254645",
-                    name: {
-                        full: "Nikos Kalogridis"
-                    },
-                    phone: "xxxx001001"
-                }
-            }
-        );
-    const refreshAction$ = DOMSource
-        .select(".refresh-customers-action")
-        .events("click")
-        .mapTo({type: "REFRESH"});
-
-    const deleteMultipleAction$ = DOMSource
-        .select(".delete-multiple-customers-action")
-        .events("click")
-        .mapTo({type: "DELETE"});
-
-    const searchFilter$ = DOMSource
-        .select("#search_header_input")
-        .events("input")
-        .map(function (ev) {
+function intent(sources, events) {
+    //const DOMSource = sources.DOM;
+    const customer$ = sources.customer
+        .map(function (customer) {
             return {
-                type: "SEARCH",
-                payload: ev.target.value
+                type: "CUSTOMER",
+                customer: customer
             };
         });
 
-    return xs.merge(addActions$, refreshAction$, deleteMultipleAction$, searchFilter$);
+    const events$ = events
+        .map(function () {
+            return {
+                type: "CHANGE_LOCATION",
+                href: "/buttons"
+            };
+        });
+
+    return xs.merge(customer$, events$);
 }
 
 export default intent;

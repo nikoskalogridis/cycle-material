@@ -4,23 +4,32 @@
 
 import xs from "xstream";
 
-function intent(DOMSource) {
-    const clickAction$ = DOMSource
+function intent({DOM, props}) {
+    const props$ = !!props
+        ? props.map(function (props) {
+            return {
+                type: "PROPS",
+                props
+            };
+        })
+        : undefined;
+
+    const clickAction$ = DOM
         .select("input")
         .events("click")
         .mapTo({type: "CLICK"});
 
-    const focusAction$ = DOMSource
+    const focusAction$ = DOM
         .select("input")
         .events("focus")
         .mapTo({type: "FOCUS"});
 
-    const blurAction$ = DOMSource
+    const blurAction$ = DOM
         .select("input")
         .events("blur")
         .mapTo({type: "BLUR"});
 
-    const changeAction$ = DOMSource
+    const changeAction$ = DOM
         .select("input")
         .events("change")
         .map(function (ev) {
@@ -30,7 +39,7 @@ function intent(DOMSource) {
             };
         });
 
-    const inputAction$ = DOMSource
+    const inputAction$ = DOM
         .select("input")
         .events("input")
         .map(function (ev) {
@@ -40,7 +49,14 @@ function intent(DOMSource) {
             };
         });
 
-    return xs.merge(clickAction$, focusAction$, blurAction$, changeAction$, inputAction$);
+    return xs.merge(
+        clickAction$,
+        focusAction$,
+        blurAction$,
+        changeAction$,
+        inputAction$,
+        props$
+    );
 }
 
 export default intent;

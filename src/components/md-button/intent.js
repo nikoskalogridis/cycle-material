@@ -15,7 +15,7 @@ function intent({DOM, props}) {
         : undefined;
 
     const clickAction$ = DOM
-        .select("button.waves-button")
+        .select("button")
         .events("click")
         .mapTo({type: "CLICK"});
 

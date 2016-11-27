@@ -126,7 +126,7 @@ function view(state$, inputFieldDOMs) {
                                     style: {float: "right"}
                                 },
                                 [
-                                    appbar.button({href: "https://github.com/nikoskalogridis/cycle-material"}, [icon({name: "github"})])
+                                    appbar.button({href: "/"}, [icon({name: "github"})])
                                 ]
                             )
                         ]

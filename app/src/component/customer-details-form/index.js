@@ -3,22 +3,32 @@
 */
 
 import xs from "xstream";
+import lodash from "lodash";
+import onionify from "cycle-onionify";
 import intent from "./intent";
 import model from "./model";
 import view from "./view";
 import {mdButton, mdInput, mdSelect} from "../../../../lib";
 
-function createComponentFactory(sources) {
-    return function createComponent(component, props) {
-        return component({
-            DOM: sources.DOM,
-            // Temporary fix waiting for https://github.com/cyclejs/cyclejs/issues/476
-            // to be resolved
-            props: xs.fromPromise(Promise.resolve(props))
-            //props: xs.of(props)
-        });
-    };
-}
+// function createComponentFactory(sources, model) {
+//     return function createComponent(component, props, path) {
+//         return component({
+//             DOM: sources.DOM,
+//             props: xs.merge(
+//                 // Temporary fix waiting for https://github.com/cyclejs/cyclejs/issues/476
+//                 // to be resolved
+//                 //props: xs.of(props)
+//                 xs.fromPromise(Promise.resolve(props)),
+//                 path
+//                     ? model
+//                         .map(function (customer) {
+//                             return {text: lodash.get(customer, path)};
+//                         })
+//                     : undefined
+//             )
+//         });
+//     };
+// }
 
 function getFields(fields, attr) {
     return Object
@@ -29,50 +39,64 @@ function getFields(fields, attr) {
         }, {});
 }
 
-export default function CustomerDetailsForm(sources) {
-    const createComponent = createComponentFactory(sources);
-    const childComponents = {
-        firstNameInput: createComponent(mdInput, {label: "First"}),
-        lastNameInput: createComponent(mdInput, {label: "Last"}),
-        emailInput: createComponent(mdInput, {label: "Email", type: "email"}),
-        mobileInput: createComponent(mdInput, {label: "Mobile"}),
-        phoneInput: createComponent(mdInput, {label: "Phone"}),
-        saveButton: createComponent(mdButton, {flat: true, text: "Save"}),
-        cancelButton: createComponent(mdButton, {text: "Cancel", flat: true, style: {"margin-left": "1em"}}),
-        genderSelect: createComponent(
-            mdSelect,
-            {
-                label: "Gender",
-                options: [
-                    {value: 0, label: "Male"},
-                    {value: 1, label: "Female"}
-                ],
-                selected: {value: 0, label: "Male"}
-            }
-        ),
-        defaultFlatButton: createComponent(mdButton, {text: "default", flat: true}),
-        primaryFlatButton: createComponent(mdButton, {text: "primary", primary: true, flat: true, style: {"margin-left": "1em"}}),
-        secondaryFlatButton: createComponent(mdButton, {text: "secondary", secondary: true, flat: true, style: {"margin-left": "1em"}}),
-        defaultRaisedButton: createComponent(mdButton, {text: "default", flat: false}),
-        primaryRaisedButton: createComponent(mdButton, {text: "primary", primary: true, flat: false, style: {"margin-left": "1em"}}),
-        secondaryRaisedButton: createComponent(mdButton, {text: "secondary", secondary: true, flat: false, style: {"margin-left": "1em"}}),
-        defaultFlatButtonDisabled: createComponent(mdButton, {enabled: false, text: "default", flat: true}),
-        primaryFlatButtonDisabled: createComponent(mdButton, {enabled: false, text: "primary", primary: true, flat: true, style: {"margin-left": "1em"}}),
-        secondaryFlatButtonDisabled: createComponent(mdButton, {enabled: false, text: "secondary", secondary: true, flat: true, style: {"margin-left": "1em"}}),
-        defaultRaisedButtonDisabled: createComponent(mdButton, {enabled: false, text: "default", flat: false}),
-        primaryRaisedButtonDisabled: createComponent(mdButton, {enabled: false, text: "primary", primary: true, flat: false, style: {"margin-left": "1em"}}),
-        secondaryRaisedButtonDisabled: createComponent(mdButton, {enabled: false, text: "secondary", secondary: true, flat: false, style: {"margin-left": "1em"}})
-    };
+function createOnionComponents(components, sources) {
+    return Object.keys(components).reduce(function (output, component) {
+        output[component] = components[component](sources, component);
+        return output;
+    }, {});
+}
 
-    const inputFieldsEvents = getFields(childComponents, "events");
-    const inputFieldsDOMs = getFields(childComponents, "DOM");
+function customerDetailsForm(sources) {
+    // const createComponent = createComponentFactory(sources);
+    // const childComponents = {
+    //     firstNameInput: createComponent(mdInput, {label: "First"}, "name.first"),
+    //     lastNameInput: createComponent(mdInput, {label: "Last"}, "name.last"),
+    //     emailInput: createComponent(mdInput, {label: "Email", type: "email"}, "email"),
+    //     mobileInput: createComponent(mdInput, {label: "Mobile"}, "phone"),
+    //     phoneInput: createComponent(mdInput, {label: "Phone"}, "phone2"),
+    //     saveButton: createComponent(mdButton, {flat: true, text: "Save"}),
+    //     cancelButton: createComponent(mdButton, {text: "Cancel", flat: true, style: {"margin-left": "1em"}}),
+    //     genderSelect: createComponent(
+    //         mdSelect,
+    //         {
+    //             label: "Gender",
+    //             options: [
+    //                 {value: "male", label: "Male"},
+    //                 {value: "female", label: "Female"}
+    //             ],
+    //             selected: {value: 0, label: "Male"}
+    //         }
+    //     )
+    // };
 
-    const action$ = intent(sources.DOM);
-    const state$ = model(action$, inputFieldsEvents.saveButton);
-    const vdom$ = view(state$, inputFieldsDOMs);
+    const childOnionComponents = createOnionComponents(
+        {
+            firstNameInput: mdInput,
+            lastNameInput: mdInput,
+            emailInput: mdInput,
+            mobileInput: mdInput,
+            phoneInput: mdInput,
+            saveButton: mdButton,
+            cancelButton: mdButton,
+            genderSelect: mdSelect
+        },
+        sources
+    );
 
+    const childEventSinks = getFields(childOnionComponents, "events");
+    const childVNodeSinks = getFields(childOnionComponents, "DOM");
+
+    const action$ = intent(sources, childEventSinks.cancelButton);
+    const state$ = model(action$);
+    const vdom$ = view(sources.onion.state$, childVNodeSinks);
     const sinks = {
-        DOM: vdom$
+        DOM: vdom$,
+        router: state$.router,
+        onion: xs.merge(state$.reducers, ...lodash.toArray(getFields(childOnionComponents, "onion")))
     };
     return sinks;
+}
+
+export default function (sources) {
+    return onionify(customerDetailsForm)(sources);
 }
