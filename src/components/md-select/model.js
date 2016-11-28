@@ -70,7 +70,7 @@ function model(action$) {
 
     const selectReducer$ = action$
         .filter(actionFilter("SELECT"))
-        .map((ev) => function selectReducer(state) {
+        .map(() => function selectReducer(state) {
             return Object.assign({}, state);
         });
 

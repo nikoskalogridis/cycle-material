@@ -12,7 +12,7 @@ function intent({DOM, props}) {
                 props
             };
         })
-        : undefined;
+        : xs.never();
 
     const clickAction$ = DOM
         .select("input")

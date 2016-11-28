@@ -1,6 +1,10 @@
 /*jslint
     es6
 */
+/*property
+    assign, events$, filter, fold, isOpen, items, map, merge, rightAlign,
+    state$, type
+*/
 
 import xs from "xstream";
 import {actionFilter} from "../../helpers/actionFilter";

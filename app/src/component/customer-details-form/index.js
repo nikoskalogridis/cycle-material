@@ -82,9 +82,10 @@ function customerDetailsForm(sources) {
         },
         sources
     );
-
     const childEventSinks = getFields(childOnionComponents, "events");
     const childVNodeSinks = getFields(childOnionComponents, "DOM");
+    const childOnionSinks = getFields(childOnionComponents, "onion");
+    const childOnionArray = lodash.toArray(childOnionSinks);
 
     const action$ = intent(sources, childEventSinks.cancelButton);
     const state$ = model(action$);
@@ -92,7 +93,7 @@ function customerDetailsForm(sources) {
     const sinks = {
         DOM: vdom$,
         router: state$.router,
-        onion: xs.merge(state$.reducers, ...lodash.toArray(getFields(childOnionComponents, "onion")))
+        onion: xs.merge(state$.reducers, ...childOnionArray)
     };
     return sinks;
 }

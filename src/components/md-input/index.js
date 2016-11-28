@@ -30,6 +30,9 @@
 /*jslint
     es6
 */
+/*property
+    DOM, drop, events, fold, onion, reducers, state$
+*/
 
 import isolate from "@cycle/isolate";
 import intent from "./intent";

@@ -1,6 +1,9 @@
 /*jslint
     es6
 */
+/*property
+    DOM, events, events$, props, state$
+*/
 
 import isolate from "@cycle/isolate";
 import intent from "./intent";

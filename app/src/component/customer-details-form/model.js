@@ -4,6 +4,7 @@
 
 //import lodash from "lodash";
 import xs from "xstream";
+import deepAssign from "deep-assign";
 //import validate from "./validate";
 
 function actionFilter(type) {
@@ -18,74 +19,76 @@ function model(action$) {
     //     .map((action) => function saveFunction(prevState) {
     //         return prevState;
     //     });
-    const defaultReducer$ = xs
-        .fromPromise(
-            Promise.resolve(
-                function defaultReducer(prevState) {
-                    return Object.assign(
-                        {},
-                        prevState,
-                        {
-                            firstNameInput: {
-                                label: "First"
-                            },
-                            lastNameInput: {
-                                label: "Last"
-                            },
-                            emailInput: {
-                                label: "Email"
-                            },
-                            mobileInput: {
-                                label: "Mobile"
-                            },
-                            phoneInput: {
-                                label: "Phone"
-                            },
-                            saveButton: {
-                                text: "Save",
-                                flat: true
-                            },
-                            cancelButton: {
-                                text: "Cancel",
-                                flat: true,
-                                style: {"margin-left": "1em"}
-                            },
-                            genderSelect: {
-                                label: "Gender",
-                                options: [
-                                    {value: "male", label: "Male"},
-                                    {value: "female", label: "Female"}
-                                ],
-                                selected: {value: "male", label: "Male"}
-                            }
-                        }
-                    );
+    const defaultReducer$ = xs.of(
+        function defaultReducer(prevState) {
+            if (prevState) {
+                return prevState;
+            }
+            const state = deepAssign(
+                {},
+                prevState,
+                {
+                    firstNameInput: {
+                        label: "First"
+                    },
+                    lastNameInput: {
+                        label: "Last"
+                    },
+                    emailInput: {
+                        label: "Email"
+                    },
+                    mobileInput: {
+                        label: "Mobile"
+                    },
+                    phoneInput: {
+                        label: "Phone"
+                    },
+                    saveButton: {
+                        text: "Save",
+                        flat: true
+                    },
+                    cancelButton: {
+                        text: "Cancel",
+                        flat: true,
+                        style: {"margin-left": "1em"}
+                    },
+                    genderSelect: {
+                        label: "Gender",
+                        options: [
+                            {value: "male", label: "Male"},
+                            {value: "female", label: "Female"}
+                        ],
+                        selected: {value: "male", label: "Male"}
+                    }
                 }
-            )
-        );
+            );
+            console.log(state);
+            return state;
+        }
+    );
 
     const customerReducer$ = action$
         .filter(actionFilter("CUSTOMER"))
         .map((action) => function customerReducer(prevState) {
             const customer = action.customer;
-            return Object.assign(
+            const state = deepAssign(
                 {},
                 prevState,
                 {
                     firstNameInput: {
-                        text: customer.name.first
+                        value: customer.name.first
                     },
                     lastNameInput: {
-                        text: customer.name.last
+                        value: customer.name.last
                     },
                     emailInput: {
-                        text: customer.email
+                        value: customer.email
                     },
                     mobileInput: {
-                        text: customer.phone
+                        value: customer.phone
                     },
                     phoneInput: {
-                        text: customer.phone2
+                        value: customer.phone2
                     },
                     // genderSelect: {
                     //     text: customer.gender
@@ -97,6 +100,8 @@ function model(action$) {
                     valid: true
                 }
             );
+            console.log(state);
+            return state;
         });
 
     const router$ = action$
