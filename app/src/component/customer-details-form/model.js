@@ -5,12 +5,68 @@
 //import lodash from "lodash";
 import xs from "xstream";
 import deepAssign from "deep-assign";
-//import validate from "./validate";
+import validate from "./validate";
 
 function actionFilter(type) {
     return function (action) {
         return action.type === type;
     };
+}
+
+function stateToCustomer(state) {
+    return {
+        name: {
+            first: state.firstNameInput.value,
+            last: state.lastNameInput.value
+        },
+        email: state.emailInput.value,
+        phone: state.mobileInput.value,
+        phone2: state.phoneInput.value,
+        gender: state.genderSelect.value
+    };
+}
+
+function customerToState(customer) {
+    return {
+        firstNameInput: {
+            value: customer.name.first
+        },
+        lastNameInput: {
+            value: customer.name.last
+        },
+        emailInput: {
+            value: customer.email
+        },
+        mobileInput: {
+            value: customer.phone
+        },
+        phoneInput: {
+            value: customer.phone2
+        }
+        // genderSelect: {
+        //     text: customer.gender
+        // }
+    };
+}
+
+function validationErrorsToState(validationErrors) {
+    if (!validationErrors) {
+        return {
+            mobileInput: {
+                isError: false,
+                message: ""
+            }
+        };
+    }
+    if (validationErrors.phone) {
+        return {
+            mobileInput: {
+                isError: true,
+                message: validationErrors.phone[0]
+            }
+        }
+    }
+    return {};
 }
 
 function model(action$) {
@@ -24,7 +80,7 @@ function model(action$) {
             if (prevState) {
                 return prevState;
             }
-            const state = deepAssign(
+            return deepAssign(
                 {},
                 prevState,
                 {
@@ -62,8 +118,6 @@ function model(action$) {
                     }
                 }
             );
-            console.log(state);
-            return state;
         }
     );
 
@@ -71,28 +125,11 @@ function model(action$) {
         .filter(actionFilter("CUSTOMER"))
         .map((action) => function customerReducer(prevState) {
             const customer = action.customer;
-            const state = deepAssign(
+            return deepAssign(
                 {},
                 prevState,
+                customerToState(customer),
                 {
-                    firstNameInput: {
-                        value: customer.name.first
-                    },
-                    lastNameInput: {
-                        value: customer.name.last
-                    },
-                    emailInput: {
-                        value: customer.email
-                    },
-                    mobileInput: {
-                        value: customer.phone
-                    },
-                    phoneInput: {
-                        value: customer.phone2
-                    },
-                    // genderSelect: {
-                    //     text: customer.gender
-                    // },
                     saveButton: {
                         enabled: false
                     },
@@ -100,18 +137,37 @@ function model(action$) {
                     valid: true
                 }
             );
-            console.log(state);
-            return state;
         });
 
     const router$ = action$
         .filter(actionFilter("CHANGE_LOCATION"))
         .map((action) => action.href);
 
+    const updateCustomerReducer$ = action$
+        .filter(actionFilter("UPDATE"))
+        .map((action) => function updateCustomerReducer(prevState) {
+            const customer = deepAssign(stateToCustomer(prevState), action.payload);
+            const validationErrors = validate(customer);
+            return deepAssign(
+                {},
+                prevState,
+                customerToState(customer),
+                validationErrorsToState(validationErrors),
+                {
+                    saveButton: {
+                        enabled: true
+                    },
+                    dirty: true,
+                    valid: true
+                }
+            );
+        });
+
     return {
         reducers: xs.merge(
             defaultReducer$,
-            customerReducer$
+            customerReducer$,
+            updateCustomerReducer$
         ),
         router: router$
     };

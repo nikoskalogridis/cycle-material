@@ -44,7 +44,7 @@ function intent({DOM, props}) {
         .events("input")
         .map(function (ev) {
             return {
-                type: "INPUT",
+                type: "CHANGE",
                 data: ev.target.value
             };
         });

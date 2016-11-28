@@ -17,9 +17,7 @@ const defaultState = {
 function model(action$) {
     const defaultReducer$ = xs
         .of(function defaultReducer(state) {
-            return state === undefined
-                ? defaultState
-                : state;
+            return Object.assign({}, defaultState, state);
         });
 
     const propsReducer$ = action$
