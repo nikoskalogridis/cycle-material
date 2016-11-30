@@ -4,7 +4,7 @@
 
 import {div} from "@cycle/dom";
 import {appbar, icon, calendar, col, row, paper} from "../../../../lib";
-import xs from "xstream";
+import {combineStreamsObject} from "../../helpers/utils";
 
 function customerFormFields(components) {
     const {
@@ -62,20 +62,10 @@ function customerFormFields(components) {
     );
 }
 
-function view(state$, inputFieldDOMs) {
-    const inputFieldArray = Object.keys(inputFieldDOMs).map(function (key) {
-        return inputFieldDOMs[key];
-    });
-
-    return xs
-        .combine(state$, ...inputFieldArray)
-        .map(function (data) {
-            const [state, ...inputs] = data;
-            const inputFields = Object.keys(inputFieldDOMs).reduce(function (c, key, index) {
-                c[key] = inputs[index];
-                return c;
-            }, {});
-
+function view(state, inputFieldDOMs) {
+    state = Object.assign({}, {state}, inputFieldDOMs);
+    return combineStreamsObject(state)
+        .map(function (state) {
             return div(
                 [
                     appbar(
@@ -105,7 +95,7 @@ function view(state$, inputFieldDOMs) {
                                             paper(
                                                 {},
                                                 [
-                                                    customerFormFields(inputFields)
+                                                    customerFormFields(state)
                                                 ]
                                             )
                                         ]
