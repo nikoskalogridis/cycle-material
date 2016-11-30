@@ -75,10 +75,15 @@ function actionFilter(type) {
     };
 }
 
+function flatMapObject(result, value) {
+    return Object.assign(result || {}, value);
+}
+
 export {
     getFields,
     createComponents,
     combineStreamsObject,
     map,
-    actionFilter
+    actionFilter,
+    flatMapObject
 };

@@ -4,64 +4,85 @@
 
 import xs from "xstream";
 import deepAssign from "deep-assign";
-import {getFields, createComponents, actionFilter, map} from "../../helpers/utils";
+import {getFields, createComponents, actionFilter, map, flatMapObject} from "../../helpers/utils";
 import lodash from "lodash";
 import validate from "validate.js";
 
-function flatMapObject(result, value) {
-    return Object.assign(result || {}, value);
-}
+export default function createFormFunction(spec, modelName = "model") {
+    const specKeys = Object.keys(spec);
 
-export default function createFormFunction(spec) {
-    return function (sources) {
-        function validationErrorsToState(validationErrors = {}) {
-            return Object
-                .keys(spec)
-                .map(function (specModel) {
-                    const component = spec[specModel].component;
-                    return {
-                        [component.name]: {
-                            [component.hasError]: !!validationErrors[specModel],
-                            [component.errorMessage]: validationErrors[specModel]
-                                ? validationErrors[specModel][0]
-                                : ""
-                        }
-                    };
-                })
-                .reduce(flatMapObject);
-        }
-
-        const components = createComponents(
-            Object
-                .keys(spec)
-                .map(function (specModel) {
-                    const {name, type} = spec[specModel].component;
-                    return {
-                        [name]: type
+    function validationErrorsToState(validationErrors = {}) {
+        return specKeys
+            .map(function (key) {
+                const component = spec[key].component;
+                return {
+                    [component.name]: {
+                        [component.hasError]: !!validationErrors[key],
+                        [component.errorMessage]: validationErrors[key]
+                            ? validationErrors[key][0]
+                            : ""
                     }
-                })
-                .reduce(flatMapObject),
-            sources
-        );
+                };
+            })
+            .reduce(flatMapObject);
+    }
+
+    const componentsSpec = specKeys
+        .map(function (key) {
+            const {name, type} = spec[key].component;
+            return {
+                [name]: type
+            };
+        })
+        .reduce(flatMapObject);
+
+    const modelStateMap = specKeys
+        .map(function (key) {
+            const {name, value} = spec[key].component;
+            return {
+                [key]: name + "." + value
+            }
+        })
+        .reduce(flatMapObject);
+
+    const {toModel, toState} = map(modelStateMap);
+
+    const modelConstraints = specKeys
+        .map(function (key) {
+            return {
+                [key]: spec[key].constraints
+            };
+        })
+        .reduce(flatMapObject);
+
+    const initialState = specKeys
+        .map(function (key) {
+            const {name, initialState} = spec[key].component;
+            return {
+                [name]: initialState
+            }
+        })
+        .reduce(flatMapObject);
+
+    return function (sources) {
+        const components = createComponents(componentsSpec, sources);
+        const eventSinks = getFields(components, "events");
 
         // intent
 
-        const customer$ = sources.customer
-            .map(function (customer) {
+        const model$ = sources[modelName]
+            .map(function (model) {
                 return {
-                    type: "CUSTOMER",
-                    customer: customer
+                    type: "MODEL",
+                    model
                 };
             });
 
-        const eventSinks = getFields(components, "events");
-
-        const eventStreams = Object
-            .keys(spec)
-            .map(function (specModel) {
-                return eventSinks[spec[specModel].component.name]
+        const eventStreams = specKeys
+            .map(function (key) {
+                return eventSinks[spec[key].component.name]
                     .map(function (event) {
-                        return lodash.set({}, specModel, event.value);
+                        return lodash.set({}, key, event.value);
                     });
             });
 
@@ -76,42 +97,11 @@ export default function createFormFunction(spec) {
 
         const action$ = xs
             .merge(
-                customer$,
+                model$,
                 changeEvents$
             );
 
         // model
-
-        const modelStateMap = Object
-            .keys(spec)
-            .map(function (specModel) {
-                const {name, value} = spec[specModel].component;
-                return {
-                    [specModel]: name + "." + value
-                }
-            })
-            .reduce(flatMapObject);
-
-        const {toModel, toState} = map(modelStateMap);
-
-        const modelConstraints = Object
-            .keys(spec)
-            .map(function (specModel) {
-                return {
-                    [specModel]: spec[specModel].constraints
-                };
-            })
-            .reduce(flatMapObject);
-
-        const initialState = Object
-            .keys(spec)
-            .map(function (specModel) {
-                const {name, initialState} = spec[specModel].component;
-                return {
-                    [name]: initialState
-                }
-            })
-            .reduce(flatMapObject);
 
         const initReducer$ = xs.of(
             function initReducer(prevState) {
@@ -123,43 +113,56 @@ export default function createFormFunction(spec) {
             }
         );
 
-        const customerReducer$ = action$
-            .filter(actionFilter("CUSTOMER"))
-            .map((action) => function customerReducer(prevState) {
+        const modelReducer$ = action$
+            .filter(actionFilter("MODEL"))
+            .map((action) => function modelReducer(prevState) {
                 return deepAssign(
                     {},
                     prevState,
-                    toState(action.customer),
+                    toState(action.model),
                     {
-                        saveButton: {
-                            enabled: false
-                        },
-                        dirty: false,
-                        valid: true
+                        dirty: false
                     }
                 );
             });
 
-        const updateCustomerReducer$ = action$
+        const updateModelReducer$ = action$
             .filter(actionFilter("UPDATE"))
-            .map((action) => function updateCustomerReducer(prevState) {
-                const customer = deepAssign(toModel(prevState), action.payload);
-                const validationErrors = validate(customer, modelConstraints);
+            .map((action) => function updateModelReducer(prevState) {
+                const model = deepAssign(toModel(prevState), action.payload);
                 return deepAssign(
                     {},
                     prevState,
-                    toState(customer),
+                    toState(model),
+                    {
+                        dirty: true
+                    }
+                );
+            });
+
+        const validationReducer$ = xs
+            .merge(
+                modelReducer$,
+                updateModelReducer$
+            )
+            .map(() => function validationReducer(prevState) {
+                const validationErrors = validate(toModel(prevState), modelConstraints);
+                return deepAssign(
+                    {},
+                    prevState,
                     validationErrorsToState(validationErrors),
                     {
-                        saveButton: {
-                            enabled: !validationErrors
-                        },
-                        dirty: true,
-                        valid: true
+                        valid: !validationErrors
                     }
                 );
-            });
+            })
 
+        const modelEvents = validationReducer$
+            .map(function () {
+                return {
+                    type: "MODELCHANGE",
+                }
+            });
 
         return {
             eventSinks,
@@ -168,9 +171,11 @@ export default function createFormFunction(spec) {
             formReducers: xs
                 .merge(
                     initReducer$,
-                    customerReducer$,
-                    updateCustomerReducer$
-                )
+                    modelReducer$,
+                    updateModelReducer$,
+                    validationReducer$
+                ),
+            modelEvents
         };
     };
 }

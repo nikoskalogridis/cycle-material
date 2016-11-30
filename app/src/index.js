@@ -30,7 +30,7 @@ function main(sources) {
     });
 
     const page$ = match$.map(function ({path, value}) {
-        return value(Object.assign({customer: xs.of(customer)}, sources, {
+        return value(Object.assign({customer: xs.from(Promise.resolve(customer))}, sources, {
             router: sources.router.path(path)
         }));
     });

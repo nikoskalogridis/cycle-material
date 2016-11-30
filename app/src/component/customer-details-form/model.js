@@ -36,8 +36,29 @@ function model(action$) {
         }
     );
 
+    const modelChangeReducer$ = action$
+        .filter(actionFilter("MODELCHANGE"))
+        .map(function () {
+            return function modelChangeReducer(prevState) {
+                return deepAssign(
+                    {},
+                    prevState,
+                    {
+                        saveButton: {
+                            enabled: prevState.dirty && prevState.valid
+                        }
+                    }
+                );
+            };
+        });
+
+    const reducers$ = xs.merge(
+        initReducer$,
+        modelChangeReducer$
+    );
+
     return {
-        reducers: initReducer$,
+        reducers: reducers$,
         router: router$
     };
 }

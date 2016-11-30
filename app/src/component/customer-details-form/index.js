@@ -19,7 +19,7 @@ import {formSpec} from "./customerFormSpec";
 import createFormFunction from "./formHelper";
 
 function customerDetailsForm(sources) {
-    const formComponents = createFormFunction(formSpec)(sources);
+    const formComponents = createFormFunction(formSpec, "customer")(sources);
     const childOnionComponents = createComponents(
         {
             saveButton: mdButton,
@@ -32,7 +32,7 @@ function customerDetailsForm(sources) {
     const childOnionSinks = Object.assign(formComponents.onionSinks, getFields(childOnionComponents, "onion"));
 
     const action$ = intent(sources, childEventSinks);
-    const state$ = model(action$);
+    const state$ = model(xs.merge(action$, formComponents.modelEvents));
     const vdom$ = view(sources.onion.state$, childVNodeSinks);
     const sinks = {
         DOM: vdom$,
