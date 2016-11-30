@@ -13,29 +13,28 @@ function flatMapObject(result, value) {
 }
 
 export default function createFormFunction(spec) {
-    return function (sources) {
-        function validationErrorsToState(validationErrors = {}) {
-            return Object
-                .keys(spec)
-                .map(function (specModel) {
-                    const component = spec[specModel].component;
-                    return {
-                        [component.name]: {
-                            [component.hasError]: !!validationErrors[specModel],
-                            [component.errorMessage]: validationErrors[specModel]
-                                ? validationErrors[specModel][0]
-                                : ""
-                        }
-                    };
-                })
-                .reduce(flatMapObject);
-        }
+    const specKeys = Object.keys(spec);
+    function validationErrorsToState(validationErrors = {}) {
+        return specKeys
+            .map(function (specKey) {
+                const {name, hasError, errorMessage} = spec[specKey].component;
+                return {
+                    [name]: {
+                        [hasError]: !!validationErrors[specKey],
+                        [errorMessage]: validationErrors[specKey]
+                            ? validationErrors[specKey][0]
+                            : ""
+                    }
+                };
+            })
+            .reduce(flatMapObject);
+    }
 
+    return function (sources) {
         const components = createComponents(
-            Object
-                .keys(spec)
-                .map(function (specModel) {
-                    const {name, type} = spec[specModel].component;
+            specKeys
+                .map(function (specKey) {
+                    const {name, type} = spec[specKey].component;
                     return {
                         [name]: type
                     }
@@ -56,12 +55,11 @@ export default function createFormFunction(spec) {
 
         const eventSinks = getFields(components, "events");
 
-        const eventStreams = Object
-            .keys(spec)
-            .map(function (specModel) {
-                return eventSinks[spec[specModel].component.name]
+        const eventStreams = specKeys
+            .map(function (specKey) {
+                return eventSinks[spec[specKey].component.name]
                     .map(function (event) {
-                        return lodash.set({}, specModel, event.value);
+                        return lodash.set({}, specKey, event.value);
                     });
             });
 
@@ -82,31 +80,28 @@ export default function createFormFunction(spec) {
 
         // model
 
-        const modelStateMap = Object
-            .keys(spec)
-            .map(function (specModel) {
-                const {name, value} = spec[specModel].component;
+        const modelStateMap = specKeys
+            .map(function (specKey) {
+                const {name, value} = spec[specKey].component;
                 return {
-                    [specModel]: name + "." + value
+                    [specKey]: name + "." + value
                 }
             })
             .reduce(flatMapObject);
 
         const {toModel, toState} = map(modelStateMap);
 
-        const modelConstraints = Object
-            .keys(spec)
-            .map(function (specModel) {
+        const modelConstraints = specKeys
+            .map(function (specKey) {
                 return {
-                    [specModel]: spec[specModel].constraints
+                    [specKey]: spec[specKey].constraints
                 };
             })
             .reduce(flatMapObject);
 
-        const initialState = Object
-            .keys(spec)
-            .map(function (specModel) {
-                const {name, initialState} = spec[specModel].component;
+        const initialState = specKeys
+            .map(function (specKey) {
+                const {name, initialState} = spec[specKey].component;
                 return {
                     [name]: initialState
                 }
