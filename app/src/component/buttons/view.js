@@ -3,7 +3,7 @@
 */
 
 import {div, span} from "@cycle/dom";
-import {appbar, icon, calendar, col, row, paper} from "../../../../lib";
+import {appbar, icon, col, row, paper} from "../../../../lib";
 import xs from "xstream";
 
 function customerFormFields(components) {
@@ -108,7 +108,7 @@ function view(state$, inputFieldDOMs) {
     return xs
         .combine(state$, ...inputFieldArray)
         .map(function (data) {
-            const [state, ...inputs] = data;
+            const [ignore, ...inputs] = data;
             const inputFields = Object.keys(inputFieldDOMs).reduce(function (c, key, index) {
                 c[key] = inputs[index];
                 return c;

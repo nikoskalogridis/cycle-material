@@ -55,6 +55,11 @@ const formSpec = {
             initialState: {
                 label: "Email"
             }
+        },
+        constraints: {
+            email: {
+                message: "doesn't look like a valid email"
+            }
         }
     },
     "phone": {
@@ -69,9 +74,9 @@ const formSpec = {
             }
         },
         constraints: {
-            length: {
-                is: 10,
-                message: "should be 10 digits"
+            format: {
+                pattern: /^(69\d{8})?$/,
+                message: "should start with 69 and be 10 digits"
             }
         }
     },
@@ -84,6 +89,12 @@ const formSpec = {
             errorMessage: "message",
             initialState: {
                 label: "Phone"
+            }
+        },
+        constraints: {
+            format: {
+                pattern: /^(2\d{9})?$/,
+                message: "should start with 2 and be 10 digits"
             }
         }
     },

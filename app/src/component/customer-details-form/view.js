@@ -3,7 +3,7 @@
 */
 
 import {div} from "@cycle/dom";
-import {appbar, icon, calendar, col, row, paper} from "../../../../lib";
+import {appbar, icon, col, row, paper} from "../../../../lib";
 import {combineStreamsObject} from "../../helpers/utils";
 
 function customerFormFields(components) {

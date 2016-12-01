@@ -25,11 +25,15 @@ function model(action$) {
                 {
                     saveButton: {
                         text: "Save",
-                        flat: true
+                        flat: false,
+                        secondary: true
                     },
                     cancelButton: {
                         text: "Cancel",
-                        flat: true
+                        flat: false,
+                        style: {
+                            "margin-left": "1em"
+                        }
                     }
                 }
             );

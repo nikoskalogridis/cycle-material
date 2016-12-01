@@ -4,7 +4,8 @@
 /*property
     DOM, cancelButton, emailInput, firstNameInput, genderSelect, lastNameInput,
     merge, mobileInput, onion, phoneInput, reducers, router, saveButton,
-    state$, toArray, assign, eventSinks, vNodeSinks, onionSinks, formReducers
+    state$, toArray, assign, eventSinks, vNodeSinks, onionSinks, formReducers,
+    modelEvents
 */
 
 import xs from "xstream";

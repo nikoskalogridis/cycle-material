@@ -11,18 +11,22 @@ import validate from "validate.js";
 export default function createFormFunction(spec, modelName = "model") {
     const specKeys = Object.keys(spec);
 
-    function validationErrorsToState(validationErrors = {}) {
+    function validationErrorsToState(errors = {}) {
         return specKeys
             .map(function (key) {
-                const component = spec[key].component;
-                return {
-                    [component.name]: {
-                        [component.hasError]: !!validationErrors[key],
-                        [component.errorMessage]: validationErrors[key]
-                            ? validationErrors[key][0]
-                            : ""
-                    }
-                };
+                const {name, hasError, errorMessage} = spec[key].component;
+                const details = {};
+                if (hasError) {
+                    details[hasError] = !!errors[key];
+                }
+                if (errorMessage) {
+                    details[errorMessage] = errors[key]
+                        ? errors[key][0]
+                        : "";
+                }
+                const state = {};
+                state[name] = details;
+                return state;
             })
             .reduce(flatMapObject);
     }
@@ -30,18 +34,18 @@ export default function createFormFunction(spec, modelName = "model") {
     const componentsSpec = specKeys
         .map(function (key) {
             const {name, type} = spec[key].component;
-            return {
-                [name]: type
-            };
+            const entry = {};
+            entry[name] = type;
+            return entry;
         })
         .reduce(flatMapObject);
 
     const modelStateMap = specKeys
         .map(function (key) {
             const {name, value} = spec[key].component;
-            return {
-                [key]: name + "." + value
-            }
+            const entry = {};
+            entry[key] = name + "." + value;
+            return entry;
         })
         .reduce(flatMapObject);
 
@@ -49,18 +53,18 @@ export default function createFormFunction(spec, modelName = "model") {
 
     const modelConstraints = specKeys
         .map(function (key) {
-            return {
-                [key]: spec[key].constraints
-            };
+            const entry = {};
+            entry[key] = spec[key].constraints;
+            return entry;
         })
         .reduce(flatMapObject);
 
-    const initialState = specKeys
+    const initState = specKeys
         .map(function (key) {
             const {name, initialState} = spec[key].component;
-            return {
-                [name]: initialState
-            }
+            const entry = {};
+            entry[name] = initialState;
+            return entry;
         })
         .reduce(flatMapObject);
 
@@ -79,12 +83,8 @@ export default function createFormFunction(spec, modelName = "model") {
             });
 
         const eventStreams = specKeys
-            .map(function (key) {
-                return eventSinks[spec[key].component.name]
-                    .map(function (event) {
-                        return lodash.set({}, key, event.value);
-                    });
-            });
+            .map((key) => eventSinks[spec[key].component.name]
+                .map((event) => lodash.set({}, key, event.value)));
 
         const changeEvents$ = xs
             .merge(...eventStreams)
@@ -106,9 +106,8 @@ export default function createFormFunction(spec, modelName = "model") {
         const initReducer$ = xs.of(
             function initReducer(prevState) {
                 return deepAssign(
-                    {},
-                    prevState,
-                    initialState
+                    initState,
+                    prevState
                 );
             }
         );
@@ -155,13 +154,13 @@ export default function createFormFunction(spec, modelName = "model") {
                         valid: !validationErrors
                     }
                 );
-            })
+            });
 
         const modelEvents = validationReducer$
             .map(function () {
                 return {
-                    type: "MODELCHANGE",
-                }
+                    type: "MODELCHANGE"
+                };
             });
 
         return {
