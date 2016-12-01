@@ -9,10 +9,11 @@
   "scripts": {
     "get-latest-lint": "./node_modules/.bin/wget https://raw.githubusercontent.com/douglascrockford/JSLint/master/jslint.js -d ./node_modules/jslint/lib/jslint.js",
     "lint": "./node_modules/.bin/jslint 'src/**/*.js' 'app/src/**/*.js'",
+    "lint-lib": "./node_modules/.bin/jslint 'src/**/*.js'",
     "pretest": "npm run lint",
     "test": "mocha",
     "start": "BABEL_DISABLE_CACHE=1 parallelshell 'watch \"npm run lint --silent\" src app test' 'babel --watch src --out-dir lib' 'babel-node app/server'",
-    "prebuild": "npm run get-latest-lint && npm run lint",
+    "prebuild": "npm run get-latest-lint && npm run lint-lib",
     "build": "rimraf lib && babel src --out-dir lib && rimraf dist && NODE_ENV=production webpack --config webpack.production.config.js --progress --profile --colors",
     "prepublish": "npm run build"
   },

@@ -21,16 +21,16 @@ import createFormFunction from "./formHelper";
 
 function customerDetailsForm(sources) {
     const formComponents = createFormFunction(formSpec, "customer")(sources);
-    const childOnionComponents = createComponents(
+    const buttonComponents = createComponents(
         {
             saveButton: mdButton,
             cancelButton: mdButton
         },
         sources
     );
-    const childEventSinks = Object.assign(formComponents.eventSinks, getFields(childOnionComponents, "events"));
-    const childVNodeSinks = Object.assign(formComponents.vNodeSinks, getFields(childOnionComponents, "DOM"));
-    const childOnionSinks = Object.assign(formComponents.onionSinks, getFields(childOnionComponents, "onion"));
+    const childEventSinks = Object.assign(formComponents.eventSinks, getFields(buttonComponents, "events"));
+    const childVNodeSinks = Object.assign(formComponents.vNodeSinks, getFields(buttonComponents, "DOM"));
+    const childOnionSinks = Object.assign(formComponents.onionSinks, getFields(buttonComponents, "onion"));
 
     const action$ = intent(sources, childEventSinks);
     const state$ = model(xs.merge(action$, formComponents.modelEvents));
