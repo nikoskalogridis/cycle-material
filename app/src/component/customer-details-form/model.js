@@ -25,19 +25,44 @@ function model(action$) {
                 {
                     saveButton: {
                         text: "Save",
-                        flat: true
+                        flat: false,
+                        secondary: true
                     },
                     cancelButton: {
                         text: "Cancel",
-                        flat: true
+                        flat: false,
+                        style: {
+                            "margin-left": "1em"
+                        }
                     }
                 }
             );
         }
     );
 
+    const modelChangeReducer$ = action$
+        .filter(actionFilter("MODELCHANGE"))
+        .map(function () {
+            return function modelChangeReducer(prevState) {
+                return deepAssign(
+                    {},
+                    prevState,
+                    {
+                        saveButton: {
+                            enabled: prevState.dirty && prevState.valid
+                        }
+                    }
+                );
+            };
+        });
+
+    const reducers$ = xs.merge(
+        initReducer$,
+        modelChangeReducer$
+    );
+
     return {
-        reducers: initReducer$,
+        reducers: reducers$,
         router: router$
     };
 }
