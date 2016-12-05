@@ -69,7 +69,7 @@ function model(action$) {
     const selectReducer$ = action$
         .filter(actionFilter("SELECT"))
         .map(() => function selectReducer(state) {
-            return Object.assign({}, state);
+            return Object.assign({}, state, {isOpen: false, selected: state.options[0]});
         });
 
     const reducer$ = xs.merge(

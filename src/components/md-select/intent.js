@@ -12,7 +12,7 @@ function intent({DOM, props}) {
                 props
             };
         })
-        : xs.never();
+        : xs.empty();
 
     const clickAction$ = DOM
         .select("input")
