@@ -34,7 +34,7 @@ function createComponents(components, sources) {
 
 function combineStreamsObject(streamsMap) {
     return xs
-        .combine(..._.toArray(streamsMap))
+        .combine(..._.values(streamsMap))
         .map(_.partial(_.zipObject, _.keys(streamsMap)));
 }
 
