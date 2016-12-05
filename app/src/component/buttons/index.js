@@ -7,6 +7,7 @@ import intent from "./intent";
 import model from "./model";
 import view from "./view";
 import {mdButton} from "../../../../lib";
+import {getFields} from "../../helpers/utils";
 
 function createComponentFactory(sources) {
     return function createComponent(component, props) {
@@ -18,15 +19,6 @@ function createComponentFactory(sources) {
             //props: xs.of(props)
         });
     };
-}
-
-function getFields(fields, attr) {
-    return Object
-        .keys(fields)
-        .reduce(function (result, key) {
-            result[key] = fields[key][attr];
-            return result;
-        }, {});
 }
 
 export default function ButtonsPage(sources) {

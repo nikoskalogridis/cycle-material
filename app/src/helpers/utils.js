@@ -3,87 +3,61 @@
 */
 
 import xs from "xstream";
-import lodash from "lodash";
+import _ from "lodash";
 
-function getFields(fields, attr) {
-    return Object
-        .keys(fields)
-        .reduce(
-            function (result, key) {
-                result[key] = fields[key][attr];
-                return result;
-            },
-            {}
-        );
-}
+const getFields = _.mapValues;
 
 function createComponents(components, sources) {
-    return Object
-        .keys(components)
-        .reduce(
-            function (output, component) {
-                output[component] = components[component](sources, component);
-                return output;
-            },
-            {}
-        );
+    return _.mapValues(components, (value, key) => value(sources, key));
 }
 
-function combineStreamsObject(StreamObject) {
-    const inputArray = Object
-        .keys(StreamObject)
-        .map(function (key) {
-            return StreamObject[key];
-        });
+// function combineStreamsObject(streamsObject) {
+//     const inputArray = Object
+//         .keys(streamsObject)
+//         .map(function (key) {
+//             return streamsObject[key];
+//         });
+//     return xs
+//         .combine(...inputArray)
+//         .map(function (outputArray) {
+//             return Object
+//                 .keys(streamsObject)
+//                 .reduce(
+//                     function (c, key, index) {
+//                         c[key] = outputArray[index];
+//                         return c;
+//                     },
+//                     {}
+//                 );
+//         });
+// }
+
+function combineStreamsObject(streamsMap) {
     return xs
-        .combine(...inputArray)
-        .map(function (outputArray) {
-            return Object
-                .keys(StreamObject)
-                .reduce(
-                    function (c, key, index) {
-                        c[key] = outputArray[index];
-                        return c;
-                    },
-                    {}
-                );
-        });
+        .combine(..._.toArray(streamsMap))
+        .map(_.partial(_.zipObject, _.keys(streamsMap)));
 }
 
-function map(mappings) {
-    return {
-        toModel: (state) => Object
-            .keys(mappings)
-            .reduce(
-                (result, key) => result.set(key, lodash.get(state, mappings[key])),
-                lodash({})
-            )
-            .value(),
-        toState: (model) => Object
-            .keys(mappings)
-            .reduce(
-                (result, key) => result.set(mappings[key], lodash.get(model, key)),
-                lodash({})
-            )
-            .value()
-    };
-}
+const actionFilter = _.partial(_.matchesProperty, "type");
 
-function actionFilter(type) {
-    return function (action) {
-        return action.type === type;
-    };
-}
-
-function flatMapObject(result, value) {
-    return Object.assign(result || {}, value);
+function flattenObject(source, pathDelimiter = ".") {
+    function reducer(o, value, key) {
+        o.path.push(key);
+        if (_.isPlainObject(value)) {
+            o = _.reduce(value, reducer, o);
+        } else {
+            o.value[o.path.join(pathDelimiter)] = value;
+        }
+        o.path.pop();
+        return o;
+    }
+    return _.reduce(source, reducer, {value: {}, path: []}).value;
 }
 
 export {
     getFields,
     createComponents,
     combineStreamsObject,
-    map,
     actionFilter,
-    flatMapObject
+    flattenObject
 };

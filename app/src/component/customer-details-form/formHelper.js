@@ -3,74 +3,65 @@
 */
 
 import xs from "xstream";
-import deepAssign from "deep-assign";
-import {getFields, createComponents, actionFilter, map, flatMapObject} from "../../helpers/utils";
-import lodash from "lodash";
+import {createComponents, actionFilter, flattenObject} from "../../helpers/utils";
+import _ from "lodash";
 import validate from "validate.js";
 
 export default function createFormFunction(spec, modelName = "model") {
-    const specKeys = Object.keys(spec);
+    const componentsMap = _(spec)
+        .mapValues("component");
+
+    const validateModel = _.partialRight(validate, _.mapValues(spec, "constraints"));
 
     function validationErrorsToState(errors = {}) {
-        return specKeys
-            .map(function (key) {
-                const {name, hasError, errorMessage} = spec[key].component;
-                const details = {};
+        return componentsMap
+            .mapValues(function ({name, hasError, errorMessage}, key) {
+                const value = {};
                 if (hasError) {
-                    details[hasError] = !!errors[key];
+                    value[hasError] = !!errors[key];
                 }
                 if (errorMessage) {
-                    details[errorMessage] = errors[key]
+                    value[errorMessage] = errors[key]
                         ? errors[key][0]
                         : "";
                 }
-                const state = {};
-                state[name] = details;
-                return state;
+                return {name, value};
             })
-            .reduce(flatMapObject);
+            .keyBy("name")
+            .mapValues("value")
+            .value();
     }
 
-    const componentsSpec = specKeys
-        .map(function (key) {
-            const {name, type} = spec[key].component;
-            const entry = {};
-            entry[name] = type;
-            return entry;
-        })
-        .reduce(flatMapObject);
+    function translate(object, map) {
+        return _.reduce(
+            flattenObject(object),
+            (result, value, key) => _.set(result, map[key], value),
+            {}
+        );
+    }
 
-    const modelStateMap = specKeys
-        .map(function (key) {
-            const {name, value} = spec[key].component;
-            const entry = {};
-            entry[key] = name + "." + value;
-            return entry;
+    const map = componentsMap
+        .mapValues(function ({name, value}) {
+            return `${name}.${value}`;
         })
-        .reduce(flatMapObject);
+        .value();
 
-    const {toModel, toState} = map(modelStateMap);
+    const toState = _.partialRight(translate, map);
+    const toModel = _.partialRight(translate, _.invert(map));
 
-    const modelConstraints = specKeys
-        .map(function (key) {
-            const entry = {};
-            entry[key] = spec[key].constraints;
-            return entry;
-        })
-        .reduce(flatMapObject);
+    const componentsSpec = componentsMap
+        .keyBy("name")
+        .mapValues("type")
+        .value();
 
-    const initState = specKeys
-        .map(function (key) {
-            const {name, initialState} = spec[key].component;
-            const entry = {};
-            entry[name] = initialState;
-            return entry;
-        })
-        .reduce(flatMapObject);
+    const initState = componentsMap
+        .keyBy("name")
+        .mapValues("initialState")
+        .value();
 
     return function (sources) {
         const components = createComponents(componentsSpec, sources);
-        const eventSinks = getFields(components, "events");
+        const eventSinks = _.mapValues(components, "events");
 
         // intent
 
@@ -82,9 +73,11 @@ export default function createFormFunction(spec, modelName = "model") {
                 };
             });
 
-        const eventStreams = specKeys
-            .map((key) => eventSinks[spec[key].component.name]
-                .map((event) => lodash.set({}, key, event.value)));
+        const eventStreams = componentsMap
+            .mapValues("name")
+            .map((value, key) => eventSinks[value]
+                .map((event) => _.set({}, key, event.value)))
+            .value();
 
         const changeEvents$ = xs
             .merge(...eventStreams)
@@ -105,7 +98,7 @@ export default function createFormFunction(spec, modelName = "model") {
 
         const initReducer$ = xs.of(
             function initReducer(prevState) {
-                return deepAssign(
+                return _.merge(
                     initState,
                     prevState
                 );
@@ -115,7 +108,7 @@ export default function createFormFunction(spec, modelName = "model") {
         const modelReducer$ = action$
             .filter(actionFilter("MODEL"))
             .map((action) => function modelReducer(prevState) {
-                return deepAssign(
+                return _.merge(
                     {},
                     prevState,
                     toState(action.model),
@@ -128,11 +121,10 @@ export default function createFormFunction(spec, modelName = "model") {
         const updateModelReducer$ = action$
             .filter(actionFilter("UPDATE"))
             .map((action) => function updateModelReducer(prevState) {
-                const model = deepAssign(toModel(prevState), action.payload);
-                return deepAssign(
+                return _.merge(
                     {},
                     prevState,
-                    toState(model),
+                    toState(_.merge(toModel(prevState), action.payload)),
                     {
                         dirty: true
                     }
@@ -144,9 +136,9 @@ export default function createFormFunction(spec, modelName = "model") {
                 modelReducer$,
                 updateModelReducer$
             )
-            .map(() => function validationReducer(prevState) {
-                const validationErrors = validate(toModel(prevState), modelConstraints);
-                return deepAssign(
+            .mapTo(function validationReducer(prevState) {
+                const validationErrors = validateModel(toModel(prevState));
+                return _.merge(
                     {},
                     prevState,
                     validationErrorsToState(validationErrors),
@@ -157,16 +149,12 @@ export default function createFormFunction(spec, modelName = "model") {
             });
 
         const modelEvents = validationReducer$
-            .map(function () {
-                return {
-                    type: "MODELCHANGE"
-                };
-            });
+            .mapTo({type: "MODELCHANGE"});
 
         return {
             eventSinks,
-            vNodeSinks: getFields(components, "DOM"),
-            onionSinks: getFields(components, "onion"),
+            vNodeSinks: _.mapValues(components, "DOM"),
+            onionSinks: _.mapValues(components, "onion"),
             formReducers: xs
                 .merge(
                     initReducer$,
