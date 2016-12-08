@@ -15,12 +15,12 @@ import {} from "!style!css!../vendor/icomoon/style.css";
 
 const customer = {
     name: {
-        first: "Nikos",
-        last: "Kalogridis"
+        first: "",
+        last: ""
     },
-    gender: "male",
-    email: "nikos.kalogridis@gmail.com",
-    phone: "6947001002"
+    gender: "",
+    email: "",
+    phone: ""
 };
 
 function main(sources) {

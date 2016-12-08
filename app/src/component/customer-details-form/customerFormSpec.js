@@ -56,10 +56,16 @@ const formSpec = {
                 label: "Email"
             }
         },
-        constraints: {
-            email: {
-                message: "doesn't look like a valid email"
+        constraints: function (value) {
+            if (!value) {
+                return;
             }
+            return {
+                presence: true,
+                email: {
+                    message: "doesn't look like a valid email"
+                }
+            };
         }
     },
     "phone": {

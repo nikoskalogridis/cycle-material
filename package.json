@@ -7,12 +7,13 @@
     "lib"
   ],
   "scripts": {
-    "get-latest-lint": "./node_modules/.bin/wget https://raw.githubusercontent.com/douglascrockford/JSLint/master/jslint.js -d ./node_modules/jslint/lib/jslint.js",
+    "get-latest-lint": "./node_modules/.bin/jslint --update",
     "lint": "./node_modules/.bin/jslint 'src/**/*.js' 'app/src/**/*.js'",
     "lint-lib": "./node_modules/.bin/jslint 'src/**/*.js'",
+    "lint-watch": "./node_modules/.bin/jslint --watch 'src/**/*.js' 'app/src/**/*.js'",
     "pretest": "npm run lint",
     "test": "mocha",
-    "start": "BABEL_DISABLE_CACHE=1 parallelshell 'watch \"npm run lint --silent\" src app test' 'babel --watch src --out-dir lib' 'babel-node app/server'",
+    "start": "BABEL_DISABLE_CACHE=1 parallelshell 'npm run lint-watch' 'babel --watch src --out-dir lib' 'babel-node app/server'",
     "prebuild": "npm run get-latest-lint && npm run lint-lib",
     "build": "rimraf lib && babel src --out-dir lib && rimraf dist && NODE_ENV=production webpack --config webpack.production.config.js --progress --profile --colors",
     "prepublish": "npm run build"
@@ -89,7 +90,7 @@
     "extract-text-webpack-plugin": "^1.0.1",
     "file-loader": "^0.8.5",
     "html-webpack-plugin": "^2.15.0",
-    "jslint": "^0.10.3",
+    "jslint-node": "^1.0.0",
     "node-sass": "^3.4.2",
     "node-wget": "^0.4.2",
     "normalize.css": "^4.0.0",
